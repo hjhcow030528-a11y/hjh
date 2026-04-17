@@ -40,17 +40,18 @@ def find_parquet_files(folder: Path):
 def csv_stem_from(src: Path) -> str:
     """Derive the CSV filename stem from a parquet filename.
 
-    Rule: take the substring up to (but not including) the last '_' in the
-    original stem. If the stem contains no '_', use it unchanged.
+    Rule: take the substring after the last '_' in the original stem. If
+    the stem contains no '_' (or the tail would be empty), use the full
+    stem unchanged.
 
     Examples:
-        'data_20240101_part1.parquet' -> 'data_20240101'
-        'report_final.parquet'        -> 'report'
+        'data_20240101_part1.parquet' -> 'part1'
+        'report_final.parquet'        -> 'final'
         'plain.parquet'               -> 'plain'
     """
     stem = src.stem
-    head, sep, _ = stem.rpartition("_")
-    return head if sep and head else stem
+    _, sep, tail = stem.rpartition("_")
+    return tail if sep and tail else stem
 
 
 def convert_one(src: Path, src_root: Path, dst_root: Path) -> Path:
