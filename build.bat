@@ -1,6 +1,8 @@
 @echo off
-REM Build a standalone Windows executable for defect_detect.py
-REM Produces: dist\defect_detect.exe (single file, no console-less so stdout is visible)
+REM Build a standalone Windows executable for defect_detect.py and
+REM copy it to the current user's Documents folder.
+
+setlocal
 
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
@@ -14,7 +16,22 @@ pyinstaller ^
     --collect-submodules cv2 ^
     defect_detect.py
 
+if not exist "dist\defect_detect.exe" (
+    echo.
+    echo [ERROR] Build failed: dist\defect_detect.exe not found.
+    exit /b 1
+)
+
+REM Resolve Documents folder (handles OneDrive redirection via USERPROFILE)
+set "DOCS=%USERPROFILE%\Documents"
+if not exist "%DOCS%" mkdir "%DOCS%"
+
+copy /Y "dist\defect_detect.exe" "%DOCS%\defect_detect.exe" >nul
+
 echo.
 echo ===============================================
-echo  Build finished.  Executable:  dist\defect_detect.exe
+echo  Build finished.
+echo  Executable copied to: %DOCS%\defect_detect.exe
 echo ===============================================
+
+endlocal
