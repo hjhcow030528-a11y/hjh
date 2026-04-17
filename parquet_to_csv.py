@@ -37,14 +37,30 @@ def find_parquet_files(folder: Path):
     )
 
 
+def csv_stem_from(src: Path) -> str:
+    """Derive the CSV filename stem from a parquet filename.
+
+    Rule: take the substring up to (but not including) the last '_' in the
+    original stem. If the stem contains no '_', use it unchanged.
+
+    Examples:
+        'data_20240101_part1.parquet' -> 'data_20240101'
+        'report_final.parquet'        -> 'report'
+        'plain.parquet'               -> 'plain'
+    """
+    stem = src.stem
+    head, sep, _ = stem.rpartition("_")
+    return head if sep and head else stem
+
+
 def convert_one(src: Path, src_root: Path, dst_root: Path) -> Path:
     """Read a parquet file and write it as CSV under dst_root.
 
     The relative directory structure under src_root is mirrored under
-    dst_root to avoid filename collisions.
+    dst_root, and the CSV filename is derived via `csv_stem_from`.
     """
-    rel = src.relative_to(src_root).with_suffix(".csv")
-    out_path = dst_root / rel
+    rel = src.relative_to(src_root)
+    out_path = dst_root / rel.with_name(csv_stem_from(src) + ".csv")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     df = pd.read_parquet(src)
