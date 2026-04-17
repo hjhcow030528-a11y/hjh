@@ -1,34 +1,25 @@
 # -*- mode: python ; coding: utf-8 -*-
-# PyInstaller spec for building a standalone executable of defect_detect.py.
-# Build:  pyinstaller defect_detect.spec
 
-from PyInstaller.utils.hooks import collect_submodules
-
-block_cipher = None
 
 a = Analysis(
     ['defect_detect.py'],
     pathex=[],
     binaries=[],
     datas=[],
-    hiddenimports=['tkinter'] + collect_submodules('cv2'),
+    hiddenimports=['tkinter'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
     noarchive=False,
+    optimize=0,
 )
-
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+pyz = PYZ(a.pure)
 
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
-    a.zipfiles,
     a.datas,
     [],
     name='defect_detect',
